@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.ProposalDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.proposal_name as proposalName
+        ,a.proposal_photo as proposalPhoto
+        ,a.zirushouhcu_types as zirushouhcuTypes
+        ,a.proposal_moeny as proposalMoeny
+        ,a.proposal_types as proposalTypes
+        ,a.yonghu_id as yonghuId
+        ,a.shifou_types as shifouTypes
+        ,a.proposal_number as proposalNumber
+        ,a.insert_time as insertTime
+        ,a.proposal_content as proposalContent
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.ProposalView" >
+        SELECT
+        <include refid="Base_Column_List" />
+
+--         级联表的字段
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.sex_types as sexTypes
+        ,yonghu.yonghu_id_number as yonghuIdNumber
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_photo as yonghuPhoto
+
+        FROM proposal  a
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test=" params.proposalName != '' and params.proposalName != null and params.proposalName != 'null' ">
+                and a.proposal_name like CONCAT('%',#{params.proposalName},'%')
+            </if>
+            <if test="params.zirushouhcuTypes != null">
+                and a.zirushouhcu_types = #{params.zirushouhcuTypes}
+            </if>
+            <if test="params.proposalMoenyStart != null ">
+                <![CDATA[  and a.proposal_moeny >= #{params.proposalMoenyStart}   ]]>
+            </if>
+            <if test="params.proposalMoenyEnd != null ">
+                <![CDATA[  and a.proposal_moeny <= #{params.proposalMoenyEnd}   ]]>
+            </if>
+            <if test="params.proposalTypes != null">
+                and a.proposal_types = #{params.proposalTypes}
+            </if>
+            <if test="params.yonghuId != null">
+                and a.yonghu_id = #{params.yonghuId}
+            </if>
+            <if test="params.shifouTypes != null">
+                and a.shifou_types = #{params.shifouTypes}
+            </if>
+            <if test="params.proposalNumberStart != null">
+                <![CDATA[  and a.proposal_number >= #{params.proposalNumberStart}   ]]>
+            </if>
+            <if test="params.proposalNumberEnd != null">
+                <![CDATA[  and a.proposal_number <= #{params.proposalNumberEnd}   ]]>
+            </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') >=
+                DATE_FORMAT(#{params.insertTimeStart}, '%Y-%m-%d %H:%T:%s')   ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and DATE_FORMAT(a.insert_time, '%Y-%m-%d %H:%T:%s') <=
+                DATE_FORMAT(#{params.insertTimeEnd} , '%Y-%m-%d %H:%T:%s')    ]]>
+            </if>
+            <if test=" params.proposalContent != '' and params.proposalContent != null and params.proposalContent != 'null' ">
+                and a.proposal_content like CONCAT('%',#{params.proposalContent},'%')
+            </if>
+
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test="params.sexTypes != null">
+                and yonghu.sex_types = #{params.sexTypes}
+            </if>
+
+            <if test=" params.yonghuIdNumber != '' and params.yonghuIdNumber != null and params.yonghuIdNumber != 'null' ">
+                and yonghu.yonghu_id_number like CONCAT('%',#{params.yonghuIdNumber},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+        </where>
+        order by a.${params.orderBy} desc
+    </select>
+
+</mapper>
